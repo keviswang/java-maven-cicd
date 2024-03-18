@@ -64,7 +64,7 @@ jobs:
           git config --global user.email "keviswang@outlook.com"
           git config --global user.name "Kaikai Wang"
           mvn --version
-          mvn -DskipTests clean deploy
+          mvn -DskipTests clean
           git add pom.xml
           git commit -m "Release ${{ github.event.inputs.releaseVersion }}"
           git push
