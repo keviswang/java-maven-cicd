@@ -15,7 +15,8 @@ env:
   XPATH: //*[local-name()='project']/*[local-name()='properties']/*[local-name()='java.version']
 
 permissions:
-      packages: write
+  packages: write
+  contents: write
 
 jobs:
   release:
