@@ -1,0 +1,88 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Release Version: 1.0.0 etc.'
+        required: true
+        default: '1.0.0'
+      developmentVersion:
+        description: 'Development Version: 1.0.0 etc.'
+        required: true
+        default: '1.0.0'
+
+env:
+  XPATH: //*[local-name()='project']/*[local-name()='properties']/*[local-name()='java.version']
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get java version
+        id: java-version
+        uses: mavrosxristoforos/get-xml-info@1.1.1
+        with:
+          xml-file: pom.xml
+          xpath: ${{ env.XPATH }}
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ steps.java-version.outputs.info }}
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Setup maven settings.xml
+        uses: s4u/maven-settings-action@v2.8.0
+        with:
+          servers: |
+            [{
+              "id": "github",
+              "username": "${env.GITHUB_ACTOR}",
+              "password": "${env.GITHUB_TOKEN}"
+            },{
+              "id": "ghcr.io/${{ github.actor }}",
+              "username": "${env.GITHUB_ACTOR}",
+              "password": "${env.GITHUB_TOKEN}"
+            }]
+      - name: Set release version in pom.xml
+        shell: bash -l {0}
+        run: |
+          mvn --no-transfer-progress versions:set-property -Dproperty=revision -DnewVersion=${{ github.event.inputs.releaseVersion }}
+
+      - name: Build and upload artifacts to nexus
+        shell: bash -l {0}
+        run: |
+          mvn --version
+          mvn -DskipTests clean deploy
+          git add pom.xml
+          git commit -m "Release ${{ github.event.inputs.releaseVersion }}"
+          git push
+      - name: Tag the project
+        shell: bash -l {0}
+        run: |
+          git tag ${{ github.event.inputs.releaseVersion }} -m "Release ${{ github.event.inputs.releaseVersion }}"
+          git push origin ${{ github.event.inputs.releaseVersion }}
+      - name: Bump up version in branch to next development version
+        shell: bash -l {0}
+        run: |
+          mvn versions:set-property -Dproperty=revision -DnewVersion=${{ github.event.inputs.developmentVersion }}
+          git add pom.xml
+          git commit -m "Next development version is ${{ github.event.inputs.developmentVersion }}"
+          git push
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: lts/*
+      - name: Setup semantic-release
+        run: npm install -g semantic-release @semantic-release/commit-analyzer conventional-changelog-conventionalcommits @semantic-release/release-notes-generator @semantic-release/exec @semantic-release-plus/docker @semantic-release/git @semantic-release/github -D
+      - name: release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DOCKER_REGISTRY: ghcr.io/${{ github.actor }}
