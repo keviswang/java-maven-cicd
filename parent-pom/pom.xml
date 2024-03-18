@@ -190,13 +190,13 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>${plugin.versions.version}</version>
-          <configuration>
+          <!-- <configuration>
             <rulesUri>file://${PWD}/dependency-rules.xml</rulesUri>
             <allowAnyUpdates>false</allowAnyUpdates>
             <allowMajorUpdates>false</allowMajorUpdates>
             <allowMinorUpdates>false</allowMinorUpdates>
             <processDependencyManagement>false</processDependencyManagement>
-          </configuration>
+          </configuration> -->
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
