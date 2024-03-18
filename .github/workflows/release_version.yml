@@ -61,6 +61,8 @@ jobs:
       - name: Build and upload artifacts to nexus
         shell: bash -l {0}
         run: |
+          git config --global user.email "keviswang@outlook.com"
+          git config --global user.name "Kaikai Wang"
           mvn --version
           mvn -DskipTests clean deploy
           git add pom.xml
