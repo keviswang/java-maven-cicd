@@ -59,8 +59,8 @@ jobs:
       - name: Build and upload artifacts to nexus
         shell: bash -l {0}
         run: |
-          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
-          git config --global user.email "keviswang@outlook.com"
+          git config --global user.name "kevis.wang"
+          git config --global user.email "kevis.wang@okg.com"
           mvn --version
           mvn -DskipTests clean
           git add pom.xml
@@ -71,13 +71,15 @@ jobs:
       - name: Tag the project
         shell: bash -l {0}
         run: |
+          git config --global user.name "kevis.wang"
+          git config --global user.email "kevis.wang@okg.com"
           git tag ${{ github.event.inputs.releaseVersion }} -m "Release ${{ github.event.inputs.releaseVersion }}"
           git push origin ${{ github.event.inputs.releaseVersion }}
       - name: Bump up version in branch to next development version
         shell: bash -l {0}
         run: |
-          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
-          git config --global user.email "keviswang@outlook.com"
+          git config --global user.name "kevis.wang"
+          git config --global user.email "kevis.wang@okg.com"
           mvn versions:set-property -Dproperty=revision -DnewVersion=${{ github.event.inputs.developmentVersion }}
           git add pom.xml
           git commit -m "Next development version is ${{ github.event.inputs.developmentVersion }}"
