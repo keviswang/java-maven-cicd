@@ -16,7 +16,7 @@
   <name>java-maven-cicd</name>
 
   <properties>
-    <revision>1.3.5</revision>
+    <revision>1.3.6</revision>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>11</java.version>
   </properties>
